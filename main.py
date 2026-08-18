@@ -15,8 +15,18 @@ load_dotenv()
 
 
 def get_allowed_origins() -> list[str]:
-    origins = os.getenv("CORS_ORIGINS", "http://localhost:3000")
-    return [origin.strip() for origin in origins.split(",") if origin.strip()]
+    default_origins = [
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "https://ai-pdf-assistant-frontend.vercel.app",
+    ]
+    configured = os.getenv("CORS_ORIGINS")
+
+    if configured:
+        origins = [origin.strip() for origin in configured.split(",") if origin.strip()]
+        return origins
+
+    return default_origins
 
 
 api_key = os.getenv("GEMINI_API_KEY")
@@ -28,6 +38,7 @@ app = FastAPI(title="Document Q&A API")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=get_allowed_origins(),
+    allow_origin_regex=r"https://.*\.vercel\.app$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
