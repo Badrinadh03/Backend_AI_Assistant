@@ -147,6 +147,14 @@ def root():
     return {"status": "Document Q&A API with FAISS is running"}
 
 
+@app.get("/health")
+def health():
+    return {
+        "status": "ok",
+        "service": "ai-pdf-backend-assistant",
+    }
+
+
 @app.post("/upload")
 async def upload_document(file: UploadFile = File(...)):
     file_bytes = await file.read()
