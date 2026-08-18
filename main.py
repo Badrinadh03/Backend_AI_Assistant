@@ -13,17 +13,27 @@ import faiss
 
 load_dotenv()
 
+
+def get_allowed_origins() -> list[str]:
+    origins = os.getenv("CORS_ORIGINS", "http://localhost:3000")
+    return [origin.strip() for origin in origins.split(",") if origin.strip()]
+
+
+api_key = os.getenv("GEMINI_API_KEY")
+if not api_key:
+    raise RuntimeError("Missing GEMINI_API_KEY in environment variables. Add it to your .env file.")
+
 app = FastAPI(title="Document Q&A API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=get_allowed_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+genai.configure(api_key=api_key)
 chat_model = genai.GenerativeModel("gemini-2.5-flash")
 
 
